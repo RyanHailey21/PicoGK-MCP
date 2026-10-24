@@ -1,116 +1,111 @@
-# PicoGK-MCP: Model Context Protocol Server for Computational Geometry
+# PicoGK-MCP: Universal Model Context Protocol Server for Computational Geometry
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![.NET 9](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
-[![MCP Compliant](https://img.shields.io/badge/MCP-2024--11--05-green.svg)](https://modelcontextprotocol.io)
+[![MCP Compliant](https://img.shields.io/badge/MCP-2024--11--05%20%2F%202026-green.svg)](https://modelcontextprotocol.io)
+[![LEAP 71](https://img.shields.io/badge/Engine-PicoGK%20%2B%20ShapeKernel-orange.svg)](https://leap71.com)
 
-**PicoGK-MCP** bridges AI assistants (Claude, Antigravity, ChatGPT, Cursor, VS Code Copilot) with the **[PicoGK](https://picogk.org)** open-source computational engineering kernel developed by [LEAP 71](https://leap71.com).
+**PicoGK-MCP** bridges AI assistants (Claude, Cursor, Antigravity, OpenAI Codex, Windsurf, VS Code Copilot) with the **[PicoGK](https://picogk.org)** computational engineering kernel and **[ShapeKernel](https://github.com/leap71/LEAP71_ShapeKernel)** parametric library developed by [LEAP 71](https://leap71.com).
 
-Rather than exposing low-level, high-latency geometry primitives over RPC, **PicoGK-MCP** acts as an **In-Memory Computational Geometry Sandbox & Visual Inspector**. It equips AI agents with:
-- **Dynamic C# Computational Geometry Execution** (powered by Roslyn Scripting).
-- **Autonomous Visual Sight (`ImageContent`)**: Off-screen rendered snapshots returned directly in the tool response for multimodal inspection.
-- **Additive Manufacturing Metrology**: Automated checks for bounding boxes, voxel counts, watertight verification, minimum wall thicknesses, and overhangs.
-- **Industrial 3D Printing Export**: Direct export to watertight **STL** (meshes), **CLI** (industrial laser powder bed fusion slice toolpaths), and **VDB** (volumetric OpenVDB datasets).
+Unlike traditional CAD kernels (which choke on micro-features and organic lattices), **PicoGK-MCP** provides an **In-Memory Computational Geometry Sandbox & Visual Inspector**.
 
 ---
 
-## Architecture & Context Division
+## Quickstart (Deploy on Any Machine in 1 Minute)
 
-```
-┌────────────────────────────────────────────────────────┐
-│                   AI Assistant / Host                   │
-│          (Claude Desktop, Antigravity, Cursor)         │
-└───────────────▲────────────────────────▲───────────────┘
-                │                        │
-       Context7 MCP Server       PicoGK-MCP Server
-       (/leap71/picogk docs)     (In-Memory Compute Engine)
-                │                        │
-        API docs, recipes         • Roslyn C# In-Memory Scripting
-        & code snippets           • Real-time OpenGL 3D Render
-                                  • Metrology & Manufacturing Audit
-                                  • Direct STL / CLI Toolpath Export
-```
-
-> **Note on Documentation**: For rich API signatures, tutorials, and recipes, pair this server with **Context7** (`/leap71/picogk`), which indexes 600+ verified PicoGK code snippets.
-
----
-
-## Tools
-
-### 1. `evaluate`
-Compiles and executes a C# PicoGK computational geometry script in-memory against the active session. Updates the active model and optionally returns a rendered 3D snapshot image (Base64 PNG).
-
-**Parameters:**
-- `script` (*string*, required): C# script body. You have direct access to `PicoGK`, `System.Numerics`, `SetModel(vox)`, `SetModel(msh)`, and `Library.oViewer().Add(vox, group)`.
-- `captureSnapshot` (*bool*, optional, default: `true`): Whether to capture and return an image snapshot.
-- `view` (*string*, optional, default: `"isometric"`): Camera viewpoint (`"isometric"`, `"top"`, `"front"`, `"side"`).
-
-### 2. `render_snapshot`
-Captures and returns a high-resolution 3D rendered snapshot of the current in-memory geometry without re-running the script.
-
-**Parameters:**
-- `view` (*string*, optional, default: `"isometric"`): Camera viewpoint (`"isometric"`, `"top"`, `"front"`, `"side"`).
-
-### 3. `audit_manufacturing`
-Performs an additive manufacturing and printability audit on the current active geometry. OpenVDB Dual Contouring guarantees watertight manifold topology; this tool checks physical bounding boxes, build-plate fit, and thin-wall/overhang thresholds.
-
-**Parameters:**
-- `minWallThicknessMM` (*float*, optional, default: `0.5`): Minimum permissible wall thickness in millimeters.
-- `maxOverhangAngleDeg` (*float*, optional, default: `45.0`): Maximum permissible overhang angle relative to build plate.
-
-### 4. `export`
-Exports the current in-memory computational geometry to disk.
-
-**Parameters:**
-- `format` (*string*, optional, default: `"stl"`): Target format (`"stl"`, `"cli"`, `"vdb"`).
-- `outputPath` (*string*, optional): Destination file path. Defaults to your user Documents folder.
-- `layerThicknessMM` (*float*, optional, default: `0.05`): Layer slice thickness in mm (used for CLI slicing).
-
----
-
-## Installation & Setup
-
-### Prerequisites
-- **[.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)** (Windows x64 or Linux x64)
-
-### Building from Source
+### 1. Clone & Install
 ```bash
-git clone https://github.com/<your-username>/PicoGK-MCP.git
+git clone https://github.com/RyanHailey21/PicoGK-MCP.git
 cd PicoGK-MCP
-dotnet build -c Release
+
+# On Windows:
+.\install.ps1
+
+# On Linux / macOS:
+chmod +x ./install.sh && ./install.sh
 ```
 
-The executable will be located at:
-`bin/Release/net9.0/PicoGK.Mcp.exe` (Windows) or `PicoGK.Mcp` (Linux).
+This compiles and registers `picogk-mcp` as a **global system command**. You can now invoke it from anywhere with:
+```bash
+picogk-mcp
+```
 
 ---
 
-## Client Configuration
+## Universal Client Configuration
 
-### Claude Desktop (`claude_desktop_config.json`)
+Because `picogk-mcp` is a global tool, **no hardcoded file paths are required**. Simply reference `"command": "picogk-mcp"` in your client config.
+
+### The Recommended Pair: PicoGK-MCP + Context7
+Pairing **PicoGK-MCP** with **[Context7](https://context7.com)** gives your AI agent the complete computational engineering stack:
+- **Context7** provides instant knowledge lookup across 600+ verified PicoGK code snippets (`/leap71/picogk`).
+- **PicoGK-MCP** provides the in-memory execution engine, visual rendering (`ImageContent`), and 3D printing export.
+
+---
+
+### Configuration by Client
+
+#### 1. Claude Desktop (`claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
     "picogk": {
-      "command": "C:\\Users\\<USER>\\Documents\\PicoGK-MCP\\bin\\Release\\net9.0\\PicoGK.Mcp.exe"
+      "command": "picogk-mcp"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
     }
   }
 }
 ```
 
-Or using `dotnet run`:
+#### 2. Claude Code (CLI)
+```bash
+claude mcp add picogk picogk-mcp
+claude mcp add --transport http context7 https://mcp.context7.com/mcp
+```
+
+#### 3. Cursor (`.cursor/mcp.json`)
 ```json
 {
   "mcpServers": {
     "picogk": {
-      "command": "dotnet",
-      "args": [
-        "run",
-        "--project",
-        "C:\\Users\\<USER>\\Documents\\PicoGK-MCP\\PicoGK.Mcp.csproj",
-        "-c",
-        "Release"
-      ]
+      "command": "picogk-mcp"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
+```
+
+#### 4. Google Antigravity / Gemini CLI (`mcp_config.json`)
+```json
+{
+  "mcpServers": {
+    "picogk": {
+      "command": "picogk-mcp"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
+```
+
+#### 5. Windsurf / VS Code Copilot (`mcp.json`)
+```json
+{
+  "mcpServers": {
+    "picogk": {
+      "command": "picogk-mcp"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
     }
   }
 }
@@ -118,34 +113,47 @@ Or using `dotnet run`:
 
 ---
 
-## Example Script for `evaluate`
+## Available MCP Tools
+
+| Tool | Parameters | Description |
+| :--- | :--- | :--- |
+| **`evaluate`** | `script` (*string*), `captureSnapshot` (*bool*), `view` (*string*) | Executes C# PicoGK & ShapeKernel code in-memory. Returns volumetric metrics ($mm^3$, bounding box, triangle count) and multi-angle 3D snapshot images (`ImageContent` PNG). |
+| **`render_snapshot`** | `view` (*string*: `"isometric"`, `"top"`, `"front"`, `"side"`) | Captures and returns an off-screen rendered 3D image of the current in-memory model. |
+| **`scaffold_project`** | `projectName` (*string*), `targetDirectory` (*string*), `template` (*string*) | Generates a complete, ready-to-run .NET 9 project on disk with `PicoGK 2.3.0` and starter templates (`gyroid_tpms`, `conformal_lattice`, `neuromorphic`, `blank`). |
+| **`audit_manufacturing`** | `minWallThicknessMM` (*float*), `maxOverhangAngleDeg` (*float*) | Inspects active geometry for 3D printing: verifies watertight manifold topology, bounding box envelope fit, and thin-wall/overhang risks. |
+| **`export`** | `format` (*string*: `"stl"`, `"cli"`, `"vdb"`), `outputPath` (*string*), `layerThicknessMM` (*float*) | Exports the model to watertight **STL** (meshes), **CLI** (industrial laser powder bed fusion slice toolpaths), or **VDB** (OpenVDB voxel grids). |
+
+---
+
+## Writing Scripts in `evaluate`
+
+Your AI agent has direct access to both `PicoGK` and `Leap71.ShapeKernel`:
 
 ```csharp
-// Generate a Triply Periodic Minimal Surface (Gyroid)
-public class Gyroid : IImplicit {
-    float k = 2f * (float)Math.PI / 10f;
-    public float fSignedDistance(in Vector3 p) {
-        float x = p.X * k, y = p.Y * k, z = p.Z * k;
-        return (float)(Math.Sin(x)*Math.Cos(y) + Math.Sin(y)*Math.Cos(z) + Math.Sin(z)*Math.Cos(x));
-    }
-}
+// Generate a Bionic Gyroid Scaffold in 5 lines
+IImplicit gyroid = new ImplicitGyroid(fCellSizeMM: 6.0f, fWallThicknessMM: 0.9f);
+IImplicit sphere = new ImplicitSphere(vecCenter: Vector3.Zero, fRadius: 15.0f);
+BBox3 bounds = new BBox3(new Vector3(-18), new Vector3(18));
 
-BBox3 bounds = new BBox3(new Vector3(-20), new Vector3(20));
-Voxels voxGyroid = new Voxels(new Gyroid(), bounds);
-Voxels voxSphere = Voxels.voxSphere(Vector3.Zero, 18f);
+// Intersect implicit fields and register
+Voxels voxScaffold = new Voxels(sphere, bounds).voxIntersectImplicit(gyroid);
+SetModel(voxScaffold, "BionicScaffold");
 
-// Boolean intersection & organic smoothing
-Voxels result = (voxGyroid & voxSphere);
-result.Smoothen(0.4f);
-
-SetModel(result, "PorousBoneScaffold");
-Library.oViewer().Add(result, 0);
-return "Scaffold successfully generated.";
+Library.oViewer().Add(voxScaffold, 0);
+return "Scaffold generated with ShapeKernel!";
 ```
 
 ---
 
-## License
+## Containerized Deployment (Docker)
+```bash
+docker build -t picogk-mcp .
+docker run -i --rm picogk-mcp
+```
+
+---
+
+## 📄 License
 Released under the [Apache 2.0 License](LICENSE).
-PicoGK is developed by [LEAP 71](https://github.com/leap71/PicoGK).
+PicoGK and ShapeKernel are developed by [LEAP 71](https://github.com/leap71).
 Model Context Protocol is an open standard developed by [Anthropic](https://modelcontextprotocol.io).

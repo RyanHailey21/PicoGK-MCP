@@ -1,0 +1,8 @@
+# Smithery MCP Server Manifest
+name: picogk-mcp
+description: Model Context Protocol server for PicoGK computational geometry and LEAP 71 ShapeKernel.
+version: 1.0.0
+build:
+  command: dotnet pack -c Release -o ./nupkg && dotnet tool install -g --add-source ./nupkg PicoGK.Mcp
+run:
+  command: picogk-mcp
