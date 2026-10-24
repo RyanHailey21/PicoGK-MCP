@@ -181,5 +181,167 @@ Triangles:  {stats.TriangleCount:N0}";
                 return new CallToolResult { Content = contentBlocks, IsError = true };
             }
         }
+
+        [McpServerTool, Description("Scaffolds a complete, ready-to-build PicoGK .NET 9 project on disk with csproj, packages, and starter computational geometry templates.")]
+        public CallToolResult ScaffoldProject(
+            [Description("Project name, e.g. 'TurbineHeatExchanger' or 'NeuromorphicCore'.")] string projectName,
+            [Description("Target folder path on disk. Defaults to user's Documents folder.")] string? targetDirectory = null,
+            [Description("Template type: 'gyroid_tpms', 'conformal_lattice', 'neuromorphic', 'blank'.")] string template = "gyroid_tpms")
+        {
+            var contentBlocks = new List<ContentBlock>();
+
+            try
+            {
+                string baseDir = targetDirectory ?? Utils.strDocumentsFolder();
+                string projectDir = Path.Combine(baseDir, projectName);
+
+                if (!Directory.Exists(projectDir))
+                {
+                    Directory.CreateDirectory(projectDir);
+                }
+
+                // 1. Create .csproj
+                string csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""PicoGK"" Version=""2.3.0"" />
+  </ItemGroup>
+
+</Project>
+";
+                File.WriteAllText(Path.Combine(projectDir, $"{projectName}.csproj"), csprojContent);
+
+                // 2. Select code template
+                string programContent = GetTemplateContent(projectName, template);
+                File.WriteAllText(Path.Combine(projectDir, "Program.cs"), programContent);
+
+                string result = $@"==================================================
+ PicoGK Project Successfully Scaffolded!
+==================================================
+Project Name:  {projectName}
+Location:      {projectDir}
+Template:      {template}
+Framework:     .NET 9.0 (PicoGK 2.3.0)
+
+Files Created:
+- {projectName}.csproj
+- Program.cs
+
+To run & view in 3D:
+cd ""{projectDir}""
+dotnet run";
+
+                contentBlocks.Add(new TextContentBlock { Text = result });
+                return new CallToolResult { Content = contentBlocks, IsError = false };
+            }
+            catch (Exception ex)
+            {
+                contentBlocks.Add(new TextContentBlock { Text = $"Scaffolding failed: {ex.Message}" });
+                return new CallToolResult { Content = contentBlocks, IsError = true };
+            }
+        }
+
+        private static string GetTemplateContent(string projectName, string template)
+        {
+            return template.ToLowerInvariant() switch
+            {
+                "conformal_lattice" => @"using System;
+using System.Numerics;
+using PicoGK;
+
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Library.Go(0.4f, GenerateLattice);
+    }
+
+    private static void GenerateLattice()
+    {
+        Lattice lat = new Lattice();
+        Random rnd = new Random(42);
+
+        // Generate 3D grid with randomized strut connectivity
+        for (int x = -2; x <= 2; x++)
+        for (int y = -2; y <= 2; y++)
+        for (int z = -2; z <= 2; z++)
+        {
+            Vector3 ptA = new Vector3(x * 8f, y * 8f, z * 8f);
+            lat.AddSphere(ptA, 1.2f);
+
+            if (x < 2) lat.AddBeam(ptA, 0.8f, new Vector3((x + 1) * 8f, y * 8f, z * 8f), 0.8f, true);
+            if (y < 2) lat.AddBeam(ptA, 0.8f, new Vector3(x * 8f, (y + 1) * 8f, z * 8f), 0.8f, true);
+            if (z < 2) lat.AddBeam(ptA, 0.8f, new Vector3(x * 8f, y * 8f, (z + 1) * 8f), 0.8f, true);
+        }
+
+        Voxels vox = new Voxels(lat);
+        vox.Smoothen(0.5f);
+
+        Library.oViewer().Add(vox);
+    }
+}
+",
+                "blank" => @"using System;
+using PicoGK;
+
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Library.Go(0.5f, Task);
+    }
+
+    private static void Task()
+    {
+        Library.oViewer().Add(Utils.mshCreateCube());
+    }
+}
+",
+                "gyroid_tpms" or _ => @"using System;
+using System.Numerics;
+using PicoGK;
+
+public class GyroidField : IImplicit
+{
+    private readonly float m_k;
+    public GyroidField(float fCellSize) => m_k = 2f * (float)Math.PI / fCellSize;
+
+    public float fSignedDistance(in Vector3 p)
+    {
+        float x = p.X * m_k, y = p.Y * m_k, z = p.Z * m_k;
+        float val = (float)(Math.Sin(x) * Math.Cos(y) + Math.Sin(y) * Math.Cos(z) + Math.Sin(z) * Math.Cos(x));
+        return Math.Abs(val) - 0.35f;
+    }
+}
+
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Library.Go(0.4f, GenerateGyroid);
+    }
+
+    private static void GenerateGyroid()
+    {
+        BBox3 bounds = new BBox3(new Vector3(-20), new Vector3(20));
+        Voxels voxGyroid = new Voxels(new GyroidField(10f), bounds);
+        Voxels voxEnvelope = Voxels.voxSphere(Vector3.Zero, 18f);
+
+        Voxels result = voxGyroid & voxEnvelope;
+        result.Smoothen(0.4f);
+
+        Library.oViewer().Add(result);
+    }
+}
+"
+            };
+        }
     }
 }

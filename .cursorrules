@@ -1,0 +1,10 @@
+# PicoGK-MCP Coding & Workflow Rules
+
+When the user asks for computational geometry, 3D lattice generation, TPMS/gyroids, or additive manufacturing:
+1. Use the `picogk` MCP server tools:
+   - `evaluate`: To run C# computational geometry scripts in-memory and see rendered 3D snapshot images.
+   - `scaffold_project`: To create a new standalone .NET 9 PicoGK project on disk.
+   - `audit_manufacturing`: To check watertightness, bounding box, and 3D printing overhangs.
+   - `export`: To save to STL or CLI slices.
+2. For syntax questions and exact C# method signatures, query Context7 with `/leap71/picogk`.
+3. Remember PicoGK is a voxel/SDF kernel (OpenVDB), NOT a B-Rep CAD kernel. Use boolean operators (`+`, `-`, `&`) and `vox.Smoothen(float fDistMM)`.
