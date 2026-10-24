@@ -44,11 +44,8 @@ dotnet pack -c Release -o ./nupkg --nologo -v q
 
 # 3. Global Tool Installation
 Write-Host "Installing PicoGK-MCP as a Global .NET Tool..." -ForegroundColor Cyan
-try {
-    dotnet tool update -g --add-source ./nupkg PicoGK.Mcp --no-cache
-} catch {
-    dotnet tool install -g --add-source ./nupkg PicoGK.Mcp
-}
+dotnet tool uninstall -g PicoGK.Mcp 2>$null | Out-Null
+dotnet tool install -g --add-source ./nupkg PicoGK.Mcp --no-cache | Out-Null
 
 Write-Host "PicoGK-MCP and ShapeKernel are installed globally!" -ForegroundColor Green
 Write-Host 'You can now configure any MCP client with: "command": "picogk-mcp"' -ForegroundColor White

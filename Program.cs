@@ -41,7 +41,7 @@ namespace PicoGK.Mcp
                                 Thread.Sleep(50);
                             }
                         },
-                        strLogFilePath: Path.Combine(Path.GetTempPath(), "PicoGK_MCP.log"),
+                        strLogFilePath: Path.Combine(Path.GetTempPath(), $"PicoGK_MCP_{Environment.ProcessId}.log"),
                         bEndAppWithTask: false,
                         strWindowTitle: "PicoGK MCP Active Session",
                         strLightsFile: string.Empty

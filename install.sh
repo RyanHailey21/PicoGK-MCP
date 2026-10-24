@@ -37,7 +37,8 @@ echo "Building and Packaging PicoGK-MCP..."
 dotnet pack -c Release -o ./nupkg --nologo -v q
 
 echo "Installing PicoGK-MCP as a Global .NET Tool..."
-dotnet tool update -g --add-source ./nupkg PicoGK.Mcp --no-cache 2>/dev/null || dotnet tool install -g --add-source ./nupkg PicoGK.Mcp
+dotnet tool uninstall -g PicoGK.Mcp 2>/dev/null || true
+dotnet tool install -g --add-source ./nupkg PicoGK.Mcp --no-cache
 
 echo "PicoGK-MCP and ShapeKernel are installed globally!"
 echo 'You can now configure any MCP client with: "command": "picogk-mcp"'
