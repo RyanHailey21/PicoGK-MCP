@@ -153,7 +153,7 @@ docker run -i --rm picogk-mcp
 
 ---
 
-## 📄 License
+## License
 Released under the [Apache 2.0 License](LICENSE).
 PicoGK and ShapeKernel are developed by [LEAP 71](https://github.com/leap71).
 Model Context Protocol is an open standard developed by [Anthropic](https://modelcontextprotocol.io).

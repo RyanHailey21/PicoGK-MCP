@@ -33,7 +33,7 @@ namespace PicoGK.Mcp
         public RoslynScriptRunner(GeometrySession session)
         {
             m_session = session;
-            m_options = ScriptOptions.Default
+            var options = ScriptOptions.Default
                 .AddReferences(
                     typeof(object).Assembly,
                     typeof(Console).Assembly,
@@ -47,9 +47,28 @@ namespace PicoGK.Mcp
                     "System.Numerics",
                     "System.Collections.Generic",
                     "PicoGK",
-                    "Leap71.ShapeKernel",
                     "PicoGK.Mcp"
                 );
+
+            // Dynamically link globally installed LEAP71 ShapeKernel if present
+            string globalShapeKernel = Environment.GetEnvironmentVariable("LEAP71_SHAPEKERNEL_DLL")
+                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".picogk", "lib", "ShapeKernel.dll");
+
+            if (File.Exists(globalShapeKernel))
+            {
+                try
+                {
+                    var asm = Assembly.LoadFrom(globalShapeKernel);
+                    options = options.AddReferences(asm).AddImports("Leap71.ShapeKernel");
+                    Console.Error.WriteLine("[PicoGK-MCP] Connected global ShapeKernel: " + globalShapeKernel);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine("[PicoGK-MCP] Warning: Failed to link global ShapeKernel: " + ex.Message);
+                }
+            }
+
+            m_options = options;
         }
 
         public async Task<string> ExecuteScriptAsync(string csharpScript)
