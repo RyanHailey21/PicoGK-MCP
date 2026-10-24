@@ -47,6 +47,7 @@ namespace PicoGK.Mcp
                     "System.Numerics",
                     "System.Collections.Generic",
                     "PicoGK",
+                    "Leap71.ShapeKernel",
                     "PicoGK.Mcp"
                 );
         }
